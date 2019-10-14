@@ -1,0 +1,59 @@
+
+.mnavbar{
+	background-color: #abafb2;
+	width: 13%;
+	height: 100%;
+	padding: 0;
+	overflow-x: hidden;
+	overflow-y: auto; /* enables scrollbar on onverflow*/
+}
+.mnavbar-user-bg{
+	background-color: #7c858c;
+	color: #cfd2d4;
+	width: 100%;
+	height: 18%;
+	display: inline-block;
+	vertical-align: top;
+	padding-left: 10%;
+	padding-top: 20%;
+	overflow: hidden;
+}
+.mnavbar-user{
+	font-size: 14px;
+	margin-right: 0px;
+}
+.mnavbar-user-img{
+	float: left;
+	width:30%;
+	border: 3px solid white;
+	height: auto;
+	margin-right: 10px;
+}
+.mnavbar-user img{
+	width: 100%;
+	height: 100%;
+}
+.mnavbar-user b{
+	font-size: 120%;
+}
+.mnavbar-components{
+	color: #ffffff;
+	margin-left: 30px;
+	margin-top: 20px;
+}
+.mnavbar-components li{
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.mnavbar-sublevel{
+	padding-left: 10px;
+}
+.mnavbar-active{
+	background-color: #b8bcbf;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
