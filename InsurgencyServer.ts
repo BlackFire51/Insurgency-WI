@@ -1,18 +1,7 @@
 import * as child from 'child_process';
-
-enum ServerStatus{
-	Stoped=0, 
-	Running=1, 
-	Crashed=2, 
-	ShutingDown=3,
-	Updating=4
-
-}
-enum ServerStatusInternal{
-	None=0, 
-	AutoRestart=1, 
-	AutoUpdate=2
-}
+import {ServerStatus,ServerStatusInternal} from './enums';
+import SteamCmd from './SteamCmd'
+import ConsoleLog from './ConsoleLog'
 
 class InsurgencyServer{
 	private lastUpdate:number;
@@ -22,7 +11,7 @@ class InsurgencyServer{
 	private processStatus:ServerStatus;
 	private processInternalStatus:ServerStatusInternal;
 	private IState:number;
-	//private log:any;
+	private log:ConsoleLog;
 	private IntervalTimer:NodeJS.Timeout;
 	private playerCount:number;
 	private lastRestartTime:Date;
@@ -41,7 +30,7 @@ class InsurgencyServer{
 		this.processStatus=ServerStatus.Stoped
 		this.processInternalStatus=ServerStatusInternal.None
 		this.IState=0
-		//this.log= new ConsoleLog()
+		this.log= new ConsoleLog()
 		this.IntervalTimer=setInterval(() => {
 			this.tick()
 		},600000) //10*60*1000 // 10min
@@ -136,14 +125,15 @@ class InsurgencyServer{
 	 */
 	Update(){
 		if(this.processStatus == ServerStatus.Stoped  || this.processStatus == ServerStatus.Crashed ){
-			// this.processStatus= ServerStatus.Updating;
-			// steamcmd.Update(this.cfgData.dir,this.cfgData.appId,this.log,(sucess)=>{
-			// 	if(sucess){
-			// 		this.processStatus= Enums.ServerStatus.Stoped;
-			// 	}else{
-			// 		this.processStatus= Enums.ServerStatus.Crashed;
-			// 	}
-			// })
+			this.processStatus= ServerStatus.Updating;
+			let steamcmd = new SteamCmd();
+			steamcmd.Update(this.cfgData.dir,this.cfgData.appId,this.log,(sucess)=>{
+				if(sucess){
+					this.processStatus= ServerStatus.Stoped;
+				}else{
+					this.processStatus= ServerStatus.Crashed;
+				}
+			})
 		}
 	}
 
@@ -230,6 +220,10 @@ class InsurgencyServer{
 		fastTick=fastTick.bind(this)
 		setTimeout(fastTick,1000)
 	}
+
+	//#####################
+	//### Query
+	//#####################
 	/**
 	 * internal data query function 
 	 */
@@ -250,6 +244,16 @@ class InsurgencyServer{
 	// 		this.online=false;
 	// });
 	}
+	/**
+	 * returns promise for live status date form the server
+	 */
+	getLiveData() {	
+		// return Gamedig.query({
+		// 	type: 'insurgency',
+		// 	host: this.ip,
+		// 	port: this.port+2
+		// });
+	}
 }
 class serverCfgData{
 	public name:string
@@ -261,6 +265,7 @@ class serverCfgData{
 	public exec:string
 	public dir:string
 	public game:string
+	public appId:number
 	public maxPlayers:number
 	public password:string|undefined|null
 	public cheats:boolean
