@@ -1,0 +1,38 @@
+<div class="content-settings-inner">
+		<div><div id='setting-backBtn'><div class="arrow-left"></div> Back</div></div>
+		<div class="setting-tabs">
+			<span id="btn-srvCfg">Server Config</span>
+			<span id="btn-srvIni">Game.ini</span>
+			<span id="btn-engineIni">Engine.ini</span>
+			<span id="btn-Adminstxt">Admins.txt</span>
+			<span id="btn-MapCycletxt">MapCycle.txt</span>
+		</div>
+		<div class="server-main">
+				<table>
+				<tr><td>Name</td><td><input id="setting-name" value="=[TAC]= 8Mate | slow | tactical | hard "/></td></tr>
+				<tr><td>Max Player</td><td><input id="setting-maxPlayer" value=""/></td></tr>
+				<tr><td>IP</td><td><input id="setting-ip" value="127.0.0.1" disabled/></td></tr>
+				<tr><td>AppId</td><td><input id="setting-appId" value="581330" disabled/></td></tr>
+				<tr><td>Dir</td><td><input id="setting-dir" value="/srv/sandstorm2/" disabled/></td></tr>
+				<tr><td>Executable</td><td><input id="setting-exe" value="./Insurgency/Binaries/Linux/InsurgencyServer-Linux-Shipping" disabled/><br>
+				<tr><td>Rcon</td><td><input id="setting-rcon" value="qwertz"/></td></tr>
+				<tr><td>Cheats</td><td><input id="setting-cheats" type="checkbox" value=""/></td></tr>
+				<tr><td>Password</td><td><input id="setting-password" value=""/></td></tr>
+				<tr><td>GameStats</td><td><input id="setting-gamestats" type="checkbox" value=""/></td></tr>
+				<tr><td>GSLTToken</td><td><input id="setting-GSLTToken" value=""/></td></tr>
+				<tr><td>Map String</td><td><input id="setting-mapStr" value=""/></td></tr>
+				<tr><td>Game</td><td><input id="setting-game" value=""/></td></tr>
+				<tr><td>Port</td><td><input id="setting-port" value="27151" disabled/></td></tr>
+				<tr><td>Queryport</td><td><input id="setting-queryport" value="27153" disabled/></td></tr>
+				<tr><td>Beaconport</td><td><input id="setting-beaconport" value="27155" disabled/></td></tr>
+				<tr><td>Rconport</td><td><input id="setting-rconport" value="27157" disabled/></td></tr>
+			</table>
+			<button id="settings-saveBtn">Save</button><button id="settings-killServer">Kill Process</button>
+		</div>
+		<div class="server-iniFile">
+			<textarea id="iniFile-data" spellcheck="false" autocapitalize="off" autocorrect="off">
+				
+			</textarea><br>
+			<button id="settings-ini-saveBtn">Save</button>
+		</div>
+	</div>

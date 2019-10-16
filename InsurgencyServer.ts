@@ -2,8 +2,10 @@ import * as child from 'child_process';
 import {ServerStatus,ServerStatusInternal} from './enums';
 import SteamCmd from './SteamCmd'
 import ConsoleLog from './ConsoleLog'
+import gameFileReader from './gameServerFile'
+import Gamedig from 'gamedig';
 
-class InsurgencyServer{
+export default class InsurgencyServer{
 	private lastUpdate:number;
 	private lastData:object;
 	private online:boolean;
@@ -19,6 +21,7 @@ class InsurgencyServer{
 	private serverId:number;
 	//###############
 	private cfgData:serverCfgData
+	public fileReader:gameFileReader
 
 
 	constructor(id:number,srvCfg:any){
@@ -38,6 +41,7 @@ class InsurgencyServer{
 		this.lastRestartTime=new Date(0);
 		this.restartFrequncy=6
 		this.serverId=id
+		this.fileReader = new gameFileReader(this.cfgData.dir)
 	}
 	updateCfg(srvCfg:serverCfgData){
 		this.cfgData=srvCfg
@@ -224,35 +228,41 @@ class InsurgencyServer{
 	//#####################
 	//### Query
 	//#####################
+	getData () {
+		if( (Date.now()-this.lastUpdate)> 10000){
+			this.updateData()
+		}
+		return this.lastData
+	}
 	/**
 	 * internal data query function 
 	 */
 	updateData() {	
-	// 	Gamedig.query({
-	// 		type: 'insurgency',
-	// 		host: this.ip,
-	// 		port: this.port+2
-	// 	}).then((state) => {
-	// 		this.lastData=state
-	// 		this.playerCount=state.raw.numplayers
-	// 		this.lastUpdate=Date.now()
-	// 		this.online=true;
-	// 	}).catch((error) => {
-	// 		this.lastData=undefined;
-	// 		this.playerCount=-1
-	// 		this.lastUpdate=Date.now()
-	// 		this.online=false;
-	// });
+		Gamedig.query({
+			type: 'insurgency',
+			host: this.cfgData.ip,
+			port: this.cfgData.port+2
+		}).then((state) => {
+			this.lastData=state
+			this.playerCount=state.raw.numplayers
+			this.lastUpdate=Date.now()
+			this.online=true;
+		}).catch((error) => {
+			this.lastData=undefined;
+			this.playerCount=-1
+			this.lastUpdate=Date.now()
+			this.online=false;
+	});
 	}
 	/**
 	 * returns promise for live status date form the server
 	 */
 	getLiveData() {	
-		// return Gamedig.query({
-		// 	type: 'insurgency',
-		// 	host: this.ip,
-		// 	port: this.port+2
-		// });
+		return Gamedig.query({
+			type: 'insurgency',
+			host: this.cfgData.ip,
+			port: this.cfgData.port+2
+		});
 	}
 }
 class serverCfgData{

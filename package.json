@@ -4,7 +4,7 @@
   "description": "",
   "main": "./index.js",
   "scripts": {
-	"test": "rollup --config rollup.config.js && node ./index.js"
+    "test": "rollup --config rollup.config.js && node ./index.js"
   },
   "author": "BlackFire51",
   "license": "ISC",
@@ -13,7 +13,8 @@
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
-    "express-basic-auth": "^1.2.0"
+    "express-basic-auth": "^1.2.0",
+    "gamedig": "^2.0.16"
   },
   "devDependencies": {
     "@types/express": "^4.17.1",

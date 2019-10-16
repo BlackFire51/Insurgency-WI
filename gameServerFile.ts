@@ -45,5 +45,3 @@ function writeProtcedFile(filePath:string,data:any,callBack:(err:any)=>void){
 		callBack(err)
 	});
 }
-
-

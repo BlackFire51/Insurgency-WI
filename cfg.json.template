@@ -1,21 +1,8 @@
 {
-    "WebPort":8080,
-    "InsurgencyServer": [
-        {
-            "ip":"127.0.0.1",
-            "port":27131,
-            "appId":581330,
-            "run":{
-                "exec":"ping" ,
-                "args":["localhost"],
-                "Directory":"C:/Temp/"
-            }
-        }
-    ],
+    "WebPort":8888,
     "SteamCmd":{
-        "exec":"dir" ,
-        "args":["/b"],
-        "Directory":"C:/Temp/"
+        "exec":"./steamcmd.sh" ,
+        "Directory":"/srv/steamcmd/"
     },
     "loginCredentials":[
         {"username":"admin","password":"admin"}

@@ -15,8 +15,8 @@ function checkValues(){
 function login () {
     console.log("Btn")
     if(checkValues()){
-        let user=$("#username")[0].value;
-        let pass=$("#password")[0].value;
+        let user=$("#username").val();
+        let pass=$("#password").val();
         $.post( "/loginAction",{username:user,password:pass }, function( data ) {
             console.log( "Login: ");
             console.log( data );
