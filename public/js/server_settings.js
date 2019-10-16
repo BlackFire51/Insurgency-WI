@@ -4,33 +4,28 @@ function initSettings(){
 		load_ServerStatus()
 	});
 	$('#btn-srvCfg').click(()=>{
-		$('.server-main').show()
-		$('.server-iniFile').hide()
+		showIni()
 	})
 	$('#btn-srvIni').click(()=>{
-		$('.server-main').hide()
-		$('.server-iniFile').show()
+		showIni()
 		altiveIni='game.ini'
 		getIniFromServer()
 	})
 	//############################
 	$('#btn-engineIni').click(()=>{
-		$('.server-main').hide()
-		$('.server-iniFile').show()
+		showIni()
 		altiveIni='engine.ini'
 		getIniFromServer()
 	})
 	//############################
 	$('#btn-Adminstxt').click(()=>{
-		$('.server-main').hide()
-		$('.server-iniFile').show()
+		showIni()
 		altiveIni='Admins.txt'
 		getIniFromServer()
 	})
 	//############################
 	$('#btn-MapCycletxt').click(()=>{
-		$('.server-main').hide()
-		$('.server-iniFile').show()
+		showIni()
 		altiveIni='MapCycle.txt'
 		getIniFromServer()
 	})
@@ -53,7 +48,30 @@ function initSettings(){
 			$('#settings-ini-saveBtn')[0].disabled=false
 		},5000)
 	})
+
+	//############################
+	$('#btn-RCon').click(()=>{
+		$('.server-main').hide()
+		$('.server-iniFile').hide()
+		if($('.server-settings-rcon').length==1){
+			$('.server-settings-rcon').show()
+		}else{
+			$.get("./pages/serverRconSpam.html", ( data ) =>{
+				$('.content-settings-inner').append(data)
+			})
+			.fail((e) => {
+				console.log( "error" );
+				console.log(e)
+			});
+
+		}
+	})
 	
+}
+function showIni(){
+	$('.server-main').hide()
+	$('.server-iniFile').show()
+	$('.server-settings-rcon').hide()
 }
 
 function updateSettingsDisplay(){
