@@ -40,37 +40,37 @@ export default class SteamCmd{
 			log.addProcess(this.process)
 		}
 	}
+	getAppInfo (appId:number,callBack:(Build:{buildID:number,lastChange:number})=>void) {
+		if(this.processStatus!= ServerStatus.Stoped && this.processStatus==ServerStatus.Crashed){return;}
+		let scmd = cfg.SteamCmd; // "./steamcmd.sh"
+		// ["+login anonymous","+app_info_update 1","+app_info_print 581330", "+quit"]
+		// ["+login anonymous","+app_info_update 1","+app_info_print "+appId, "+quit"]
+		let args = ["+login anonymous","+app_info_update 1","+app_info_print "+appId, "+quit"]; 
+		this.process = child.spawn(scmd.exec,args,{cwd :scmd.Directory});
+		this.processStatus=ServerStatus.Updating;
+		let str="";
+		this.process.stdout.on('data', function(data:any) {
+			str+=data.toString('utf8');    
+		});
+		this.process.on('exit', (code:number) => {
+			let bac=undefined
+			console.log(`Exit code is: ${code}`);
+			if(code>0){
+				this.processStatus= ServerStatus.Crashed;
+			}else{
+				bac= getBuildandChangeDate(str)
+				console.log(bac)
+				this.processStatus= ServerStatus.Stoped;
+			}
+			this.process=undefined;
+			callBack(bac);
+		});
+		//addStreamToLog(this.process);
+	}
 }
 
 
 
-SteamCmd.prototype.getAppInfo = function(appId,callBack) {
-    if(this.processStatus!= Enums.ServerStatus.Stoped && this.processStatus==Enums.ServerStatus.Crashed){return;}
-    let scmd = cfg.SteamCmd; // "./steamcmd.sh"
-    // ["+login anonymous","+app_info_update 1","+app_info_print 581330", "+quit"]
-    // ["+login anonymous","+app_info_update 1","+app_info_print "+appId, "+quit"]
-    let args = ["+login anonymous","+app_info_update 1","+app_info_print "+appId, "+quit"]; 
-    this.process = spawn(scmd.exec,args,{cwd :scmd.Directory});
-    this.processStatus=Enums.ServerStatus.Updating;
-    var str="";
-    this.process.stdout.on('data', function(data) {
-        str+=data.toString('utf8');    
-    });
-    this.process.on('exit', code => {
-        let bac=undefined
-        console.log(`Exit code is: ${code}`);
-        if(code>0){
-            this.processStatus= Enums.ServerStatus.Crashed;
-        }else{
-            bac= getBuildandChangeDate(str)
-            console.log(bac)
-            this.processStatus= Enums.ServerStatus.Stoped;
-        }
-        this.process=undefined;
-        callBack(bac);
-    });
-    //addStreamToLog(this.process);
-}
 
 function getBuildandChangeDate(str){
     let mRegex= /^AppID : \d*, change number : (\d*)\/\d*, last change : (.*$)/gm
@@ -81,5 +81,3 @@ function getBuildandChangeDate(str){
     }
     return {buildID:matches_array[1],lastChange:matches_array[2]}
 }
-var instance = new SteamCmd()
-module.exports = instance
