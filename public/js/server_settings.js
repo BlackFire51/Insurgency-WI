@@ -4,7 +4,10 @@ function initSettings(){
 		load_ServerStatus()
 	});
 	$('#btn-srvCfg').click(()=>{
-		showIni()
+		$('.server-main').show()
+		$('.server-iniFile').hide()
+		$('.server-settings-rcon').hide()
+		updateSettingsDisplay()
 	})
 	$('#btn-srvIni').click(()=>{
 		showIni()
@@ -66,6 +69,7 @@ function initSettings(){
 
 		}
 	})
+	updateSettingsDisplay()
 	
 }
 function showIni(){

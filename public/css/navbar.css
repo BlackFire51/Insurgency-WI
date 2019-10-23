@@ -57,3 +57,4 @@ ul {
     margin: 0;
     padding: 0;
 }
+.mnavbar-sublevel > li:hover {cursor:pointer;}

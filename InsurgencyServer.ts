@@ -49,14 +49,20 @@ export default class InsurgencyServer{
 
 	getArgs() {
 		let port = this.cfgData.port;
-		let args=[]
-		let mainStartParam= this.cfgData.mapStr+"?port="+port+"?queryport="+(port+2)+"?beaconport="+(port+4)+"?MaxPlayers="+this.cfgData.maxPlayers;
+		let args=[
+			"-Port="+port,
+			"-Queryport="+(port+2),
+			"-Beaconport="+(port+4),
+			"-MaxPlayers="+this.cfgData.maxPlayers
+		]
+		let mainStartParam= this.cfgData.mapStr;
 		if(this.cfgData.password!=null){
 			mainStartParam+="?Password="+this.cfgData.password
 		}
 		if(this.cfgData.game!=null){
 			mainStartParam+="?game="+this.cfgData.game  //CheckpointHardcore
 		} 
+		mainStartParam+="?MaxPlayers="+this.cfgData.maxPlayers
 		args.push(mainStartParam);
 		args.push("-log","-MapCycle=MapCycle")
 		args.push("-hostname=\t"+ this.cfgData.name)

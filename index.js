@@ -187,39 +187,39 @@ var SteamCmd = /** @class */ (function () {
             log.addProcess(this.process);
         }
     };
+    SteamCmd.prototype.getAppInfo = function (appId, callBack) {
+        var _this = this;
+        if (this.processStatus != ServerStatus.Stoped && this.processStatus == ServerStatus.Crashed) {
+            return;
+        }
+        var scmd = cfg$1.SteamCmd; // "./steamcmd.sh"
+        // ["+login anonymous","+app_info_update 1","+app_info_print 581330", "+quit"]
+        // ["+login anonymous","+app_info_update 1","+app_info_print "+appId, "+quit"]
+        var args = ["+login anonymous", "+app_info_update 1", "+app_info_print " + appId, "+quit"];
+        this.process = child__default.spawn(scmd.exec, args, { cwd: scmd.Directory });
+        this.processStatus = ServerStatus.Updating;
+        var str = "";
+        this.process.stdout.on('data', function (data) {
+            str += data.toString('utf8');
+        });
+        this.process.on('exit', function (code) {
+            var bac = undefined;
+            console.log("Exit code is: " + code);
+            if (code > 0) {
+                _this.processStatus = ServerStatus.Crashed;
+            }
+            else {
+                bac = getBuildandChangeDate(str);
+                console.log(bac);
+                _this.processStatus = ServerStatus.Stoped;
+            }
+            _this.process = undefined;
+            callBack(bac);
+        });
+        //addStreamToLog(this.process);
+    };
     return SteamCmd;
 }());
-SteamCmd.prototype.getAppInfo = function (appId, callBack) {
-    var _this = this;
-    if (this.processStatus != Enums.ServerStatus.Stoped && this.processStatus == Enums.ServerStatus.Crashed) {
-        return;
-    }
-    var scmd = cfg$1.SteamCmd; // "./steamcmd.sh"
-    // ["+login anonymous","+app_info_update 1","+app_info_print 581330", "+quit"]
-    // ["+login anonymous","+app_info_update 1","+app_info_print "+appId, "+quit"]
-    var args = ["+login anonymous", "+app_info_update 1", "+app_info_print " + appId, "+quit"];
-    this.process = spawn(scmd.exec, args, { cwd: scmd.Directory });
-    this.processStatus = Enums.ServerStatus.Updating;
-    var str = "";
-    this.process.stdout.on('data', function (data) {
-        str += data.toString('utf8');
-    });
-    this.process.on('exit', function (code) {
-        var bac = undefined;
-        console.log("Exit code is: " + code);
-        if (code > 0) {
-            _this.processStatus = Enums.ServerStatus.Crashed;
-        }
-        else {
-            bac = getBuildandChangeDate(str);
-            console.log(bac);
-            _this.processStatus = Enums.ServerStatus.Stoped;
-        }
-        _this.process = undefined;
-        callBack(bac);
-    });
-    //addStreamToLog(this.process);
-};
 function getBuildandChangeDate(str) {
     var mRegex = /^AppID : \d*, change number : (\d*)\/\d*, last change : (.*$)/gm;
     //var matches_array = test.match(mRegex);
@@ -229,8 +229,6 @@ function getBuildandChangeDate(str) {
     }
     return { buildID: matches_array[1], lastChange: matches_array[2] };
 }
-var instance = new SteamCmd();
-module.exports = instance;
 
 var ConsoleLog = /** @class */ (function () {
     function ConsoleLog() {
@@ -350,14 +348,20 @@ var InsurgencyServer = /** @class */ (function () {
     };
     InsurgencyServer.prototype.getArgs = function () {
         var port = this.cfgData.port;
-        var args = [];
-        var mainStartParam = this.cfgData.mapStr + "?port=" + port + "?queryport=" + (port + 2) + "?beaconport=" + (port + 4) + "?MaxPlayers=" + this.cfgData.maxPlayers;
+        var args = [
+            "-Port=" + port,
+            "-Queryport=" + (port + 2),
+            "-Beaconport=" + (port + 4),
+            "-MaxPlayers=" + this.cfgData.maxPlayers
+        ];
+        var mainStartParam = this.cfgData.mapStr;
         if (this.cfgData.password != null) {
             mainStartParam += "?Password=" + this.cfgData.password;
         }
         if (this.cfgData.game != null) {
             mainStartParam += "?game=" + this.cfgData.game; //CheckpointHardcore
         }
+        mainStartParam += "?MaxPlayers=" + this.cfgData.maxPlayers;
         args.push(mainStartParam);
         args.push("-log", "-MapCycle=MapCycle");
         args.push("-hostname=\t" + this.cfgData.name);
