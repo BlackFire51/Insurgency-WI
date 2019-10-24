@@ -402,7 +402,7 @@ var InsurgencyServer = /** @class */ (function () {
             }
             _this.process = undefined;
         });
-        // this.log.addProcess(this.process);
+        this.log.addProcess(this.process);
         this.lastRestartTime = new Date();
     };
     /**

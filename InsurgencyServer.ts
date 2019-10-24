@@ -3,6 +3,7 @@ import {ServerStatus,ServerStatusInternal} from './enums';
 import SteamCmd from './SteamCmd'
 import ConsoleLog from './ConsoleLog'
 import gameFileReader from './gameServerFile'
+import RconSpam from './InsurgencyServer_RconSpam'
 import Gamedig from 'gamedig';
 
 export default class InsurgencyServer{
@@ -22,6 +23,7 @@ export default class InsurgencyServer{
 	//###############
 	private cfgData:serverCfgData
 	public fileReader:gameFileReader
+	public rconSpam:RconSpam
 
 
 	constructor(id:number,srvCfg:any){
@@ -41,7 +43,14 @@ export default class InsurgencyServer{
 		this.lastRestartTime=new Date(0);
 		this.restartFrequncy=6
 		this.serverId=id
-		this.fileReader = new gameFileReader(this.cfgData.dir)
+		if(srvCfg.rconSpam!=undefined && srvCfg.rconSpam.msgs!= undefined && srvCfg.rconSpam.msgs.length>0){
+			this.fileReader = new gameFileReader(this.cfgData.dir)
+			this.rconSpam= new RconSpam('127.0.0.1',srvCfg.port+6,srvCfg.rcon)
+			this.rconSpam.setArray(srvCfg.rconSpam.msgs)
+			this.rconSpam.setDelay(srvCfg.rconSpam.delay)
+			this.rconSpam.start()
+		}
+
 	}
 	updateCfg(srvCfg:serverCfgData){
 		this.cfgData=srvCfg
@@ -104,7 +113,7 @@ export default class InsurgencyServer{
 			}
 			this.process=undefined;
 		});
-		// this.log.addProcess(this.process);
+		this.log.addProcess(this.process);
 		this.lastRestartTime=new Date();
 	}
 	/**

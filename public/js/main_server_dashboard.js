@@ -5,9 +5,11 @@ let activeServerId=0;
 let serverCFG=[];
 
 let tickCount=0;
+let ivalFun=null
 
 function initDashbord(){
-	setTimeout(()=>{
+	if(ivalFun!=null) clearInterval(ivalFun)
+	ivalFun=setInterval(()=>{
 		//console.log("Tick")
 		if(servers[activeServerId]!=undefined){
 			servers[activeServerId].getServerConsoleLog();
@@ -60,9 +62,9 @@ function applyStatus(state) {
     let c='gray';
     if(state<statusCssClass.length){
         c=statusCssClass[state];
-        $('#status-txt')[0].innerHTML=ServerSateName[state];
+        $('#status-txt').text(ServerSateName[state]);
     }else{
-        $('#status-txt')[0].innerHTML="Unkown"
+        $('#status-txt').text("Unkown");
     }
     // set color for indicator
     $('.status').each((index,element)=>{
@@ -70,15 +72,15 @@ function applyStatus(state) {
     });
     // set button status
     if(servers[activeServerId].isStoped()){
-        StartStopBtn.disabled=false;
-        updateBtn.disabled=false;
+		$('#StartStopBtn').prop('disabled',false)
+		$('#updateBtn').prop('disabled',false)
     }else if(servers[activeServerId].isRunning()){ 
-        StartStopBtn.disabled=false;
-        updateBtn.disabled=true;
+		$('#StartStopBtn').prop('disabled',false)
+		$('#updateBtn').prop('disabled',true)
     }
     else{
-        StartStopBtn.disabled=true;
-        updateBtn.disabled=true;
+		$('#StartStopBtn').prop('disabled',true)
+		$('#updateBtn').prop('disabled',true)
     }
 }
 

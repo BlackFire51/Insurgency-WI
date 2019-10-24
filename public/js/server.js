@@ -90,20 +90,18 @@ class Server{
 				window.location ="/";
 				return;
 			}   
-			//console.log( "getServerConsoleLog(): ");
-			//console.log( data );
+			// console.log( "getServerConsoleLog(): ");
+			// console.log( data );
 			this.ServerSate=data.status;
 			applyStatus(data.status)
 			if(this.CmdLog.logPtr == data.ptr) return; // no new data. Nothing to add
 			this.CmdLog.log(data.data,data.ptr)
 			//TODO move this block in GUI script 
 			var textarea = document.getElementById('console-log-txt');
-			let isAutoscroll = Math.abs(textarea.scrollTop- (textarea.scrollHeight-210)) <5;
 			textarea.innerHTML=this.CmdLog.ProcessedLog;
 			// autoscroll
-			if(isAutoscroll){
-				textarea.scrollTop = textarea.scrollHeight;
-			}
+			$("#console-log-txt").animate({ scrollTop: $('#console-log-txt').prop("scrollHeight")}, 400)
+			
 		});
 	}
 

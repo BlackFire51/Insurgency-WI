@@ -61,6 +61,7 @@ function initSettings(){
 		}else{
 			$.get("./pages/serverRconSpam.html", ( data ) =>{
 				$('.content-settings-inner').append(data)
+				iniServerSettingsRcon();
 			})
 			.fail((e) => {
 				console.log( "error" );

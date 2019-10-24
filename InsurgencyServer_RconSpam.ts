@@ -1,6 +1,6 @@
 import Rcon from 'rcon'
 
-class rconSpammer{
+export default class rconSpammer{
 	private ip:string
 	private port:number
 	private rconPassword:string
@@ -17,12 +17,18 @@ class rconSpammer{
 		this.intervalTime=1000*60*2
 		this.msgPtr=0
 		this.msgArr=[]
+		this.connection=null
 	}
 	setArray(strArr:string[]){
 		this.msgArr=strArr
 	}
+	setDelay(delay:number){
+		if(delay<10)delay=10
+		this.intervalTime=1000*delay
+	}
 
 	start(){
+		if(this.connection!=null) return;
 		this.connection= new Rcon(this.ip, this.port, this.rconPassword);
 		this.connection.on('auth', function() {
 			console.log("Authed!");
@@ -53,7 +59,7 @@ class rconSpammer{
 		
 	}
 
-	spamAdvert() {
+	private spamAdvert() {
 		//	conn.send("say ----------------");
 		this.connection.send("say "+this.msgArr[this.msgPtr]);
 		this.msgPtr=(this.msgPtr+1)%this.msgArr.length;

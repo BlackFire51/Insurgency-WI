@@ -5,7 +5,7 @@ import auth from './auth'
 import fs from 'fs'
 
 export default class srvManager {
-	private Servers: any[]
+	private Servers: InsurgencyServer[]
 	private serversCFG: any
 
 	constructor(serversCFG: any) {
@@ -200,6 +200,16 @@ export default class srvManager {
 			if(req.body.sid==undefined || this.Servers[req.body.sid]==undefined) return res.send("err server Not Found");
 			
 			this.Servers[req.body.sid].fileReader.setIniFile(req.body.ini,req.body.data);
+		});
+
+		app.post('/updateRconSpam', (req, res) => {
+			if (!auth.auth(req, res)) { res.send("error: auth"); return; }
+			if(req.body.sid==undefined || this.Servers[req.body.sid]==undefined) return res.send("err server Not Found");
+			if(this.Servers[req.body.sid].rconSpam!=undefined ){
+				this.Servers[req.body.sid].rconSpam.setArray(req.body.data.msgs.split('\n'))
+				this.Servers[req.body.sid].rconSpam.setDelay(req.body.data.delay)
+			}
+			res.send('okay');
 		});
 	}
 }
