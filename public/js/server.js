@@ -85,6 +85,8 @@ class Server{
 	}
 	
 	getServerConsoleLog() {
+		let textarea = document.getElementById('console-log-txt');
+		if(textarea==null) return;
 		$.post( "/consoleLog",{ptr:this.CmdLog.logPtr,sid:this.id  }, ( data ) => {
 			if( typeof data=='string' && data.startsWith("error: auth")){
 				window.location ="/";
@@ -97,7 +99,7 @@ class Server{
 			if(this.CmdLog.logPtr == data.ptr) return; // no new data. Nothing to add
 			this.CmdLog.log(data.data,data.ptr)
 			//TODO move this block in GUI script 
-			var textarea = document.getElementById('console-log-txt');
+			
 			textarea.innerHTML=this.CmdLog.ProcessedLog;
 			// autoscroll
 			$("#console-log-txt").animate({ scrollTop: $('#console-log-txt').prop("scrollHeight")}, 400)

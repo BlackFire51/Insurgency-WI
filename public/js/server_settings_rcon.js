@@ -32,3 +32,29 @@ function iniServerSettingsRcon(){
 
 	})
 }
+
+function updateServerSettingsRconData(){
+	$.post("/getRconSpam",{sid:activeServerId}, function( data ) {
+        console.log("asw jQuery: "+data)
+        if( typeof data=='string' && data.startsWith("error: auth")){
+            window.location ="/";
+            return;
+		} 
+		if(data==undefined) return console.log("no data Setting")
+		$('#setting-rcon-msgs').val('')
+		if(data.msgs){
+			let str=""
+			data.msgs.forEach(line => {
+				str+=line+"\n"
+			});
+			$('#setting-rcon-msgs').val(str)
+		}
+		if(data.delay){
+			$('#setting-rcon-delay').val(+data.delay)
+		}
+    })
+    .fail(function(e) {
+        console.log( "error" );
+        console.log(e)
+    });
+}

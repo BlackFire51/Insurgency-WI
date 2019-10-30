@@ -9,6 +9,7 @@ var child = require('child_process');
 var child__default = _interopDefault(child);
 var fs = _interopDefault(require('fs'));
 var path = _interopDefault(require('path'));
+var Rcon = _interopDefault(require('rcon'));
 var Gamedig = _interopDefault(require('gamedig'));
 
 var cfg = require('./cfg.json');
@@ -322,6 +323,68 @@ function writeProtcedFile(filePath, data, callBack) {
     });
 }
 
+var rconSpammer = /** @class */ (function () {
+    function rconSpammer(ip, port, rconPassword) {
+        this.ip = ip;
+        this.port = port;
+        this.rconPassword = rconPassword;
+        this.intervalTime = 1000 * 60 * 2;
+        this.msgPtr = 0;
+        this.msgArr = [];
+        this.connection = null;
+    }
+    rconSpammer.prototype.setArray = function (strArr) {
+        this.msgArr = strArr;
+    };
+    rconSpammer.prototype.setDelay = function (delay) {
+        if (delay < 10)
+            delay = 10;
+        this.intervalTime = 1000 * delay;
+    };
+    rconSpammer.prototype.start = function () {
+        var _this = this;
+        console.log("Rcon SPAMer Start A");
+        if (this.connection != null)
+            return;
+        console.log("Rcon SPAMer Start B");
+        console.log(JSON.stringify(this));
+        this.connection = new Rcon(this.ip, this.port, this.rconPassword);
+        this.connection.on('auth', function () {
+            console.log("Authed!");
+            _this.intervalObj = setInterval(function () {
+                _this.spamAdvert();
+            }, _this.intervalTime);
+        }).on('response', function (str) {
+            // console.log("Got response: " + Buffer.from(str).toString('base64'));
+            // console.log("Got response: " + str);
+            //conn.disconnect();
+        }).on('end', function () {
+            var _this = this;
+            console.log("Socket closed!");
+            //  process.exit();
+            setTimeout(function () {
+                console.log("Reconnect Rcon A!");
+                _this.connection.connect();
+            }, 120000);
+        }).on('error', function (e) {
+            var _this = this;
+            console.log("err ", e);
+            //  process.exit();
+            setTimeout(function () {
+                console.log("Reconnect Rcon B!");
+                _this.connection.connect();
+            }, 300000);
+        });
+        this.connection.connect();
+    };
+    rconSpammer.prototype.spamAdvert = function () {
+        //	conn.send("say ----------------");
+        this.connection.send("say " + this.msgArr[this.msgPtr % this.msgArr.length]);
+        this.msgPtr = (this.msgPtr + 1) % this.msgArr.length;
+    };
+    return rconSpammer;
+}());
+
 var InsurgencyServer = /** @class */ (function () {
     function InsurgencyServer(id, srvCfg) {
         var _this = this;
@@ -342,9 +405,35 @@ var InsurgencyServer = /** @class */ (function () {
         this.restartFrequncy = 6;
         this.serverId = id;
         this.fileReader = new reader(this.cfgData.dir);
+        this.startRconSpam();
     }
     InsurgencyServer.prototype.updateCfg = function (srvCfg) {
         this.cfgData = srvCfg;
+    };
+    InsurgencyServer.prototype.getServerCfg = function () {
+        return this.cfgData;
+    };
+    InsurgencyServer.prototype.startRconSpam = function (overrideMsgs, overrideDelay) {
+        if (overrideMsgs === void 0) { overrideMsgs = undefined; }
+        if (overrideDelay === void 0) { overrideDelay = undefined; }
+        console.log("startRconSpam", overrideMsgs, overrideDelay);
+        if (overrideMsgs != undefined) {
+            if (this.cfgData.rconSpam == undefined)
+                this.cfgData.rconSpam = new rconSpamCfgData();
+            this.cfgData.rconSpam.msgs = overrideMsgs;
+        }
+        if (overrideDelay != undefined) {
+            if (this.cfgData.rconSpam == undefined)
+                this.cfgData.rconSpam = new rconSpamCfgData();
+            this.cfgData.rconSpam.delay = overrideDelay;
+        }
+        if (this.cfgData.rconSpam != undefined && this.cfgData.rconSpam.msgs != undefined && this.cfgData.rconSpam.msgs.length > 0) {
+            console.log("create new Spamer");
+            this.rconSpam = new rconSpammer('127.0.0.1', this.cfgData.port + 6, this.cfgData.rcon);
+            this.rconSpam.setArray(this.cfgData.rconSpam.msgs);
+            this.rconSpam.setDelay(this.cfgData.rconSpam.delay);
+            this.rconSpam.start();
+        }
     };
     InsurgencyServer.prototype.getArgs = function () {
         var port = this.cfgData.port;
@@ -582,6 +671,11 @@ var InsurgencyServer = /** @class */ (function () {
     };
     return InsurgencyServer;
 }());
+var rconSpamCfgData = /** @class */ (function () {
+    function rconSpamCfgData() {
+    }
+    return rconSpamCfgData;
+}());
 
 var srvManager = /** @class */ (function () {
     function srvManager(serversCFG) {
@@ -772,8 +866,7 @@ var srvManager = /** @class */ (function () {
             }
             _this.Servers[req.body.sid].updateCfg(_this.serversCFG[req.body.sid]);
             //serversCFG
-            var dataStr = JSON.stringify(_this.serversCFG, null, 2);
-            fs.writeFileSync('./servers.json', dataStr);
+            _this.saveServerConfigs();
             res.send("okay");
         });
         app.post('/getIniFile', function (req, res) {
@@ -800,6 +893,35 @@ var srvManager = /** @class */ (function () {
                 return res.send("err server Not Found");
             _this.Servers[req.body.sid].fileReader.setIniFile(req.body.ini, req.body.data);
         });
+        app.post('/updateRconSpam', function (req, res) {
+            if (!authC.auth(req, res)) {
+                res.send("error: auth");
+                return;
+            }
+            if (req.body.sid == undefined || _this.Servers[req.body.sid] == undefined)
+                return res.send("err server Not Found");
+            if (_this.Servers[req.body.sid].rconSpam != undefined) {
+                _this.Servers[req.body.sid].rconSpam.setArray(req.body.data.msgs.split('\n'));
+                _this.Servers[req.body.sid].rconSpam.setDelay(req.body.data.delay);
+            }
+            else {
+                _this.Servers[req.body.sid].startRconSpam(req.body.data.msgs.split('\n'), +req.body.data.delay);
+            }
+            _this.serversCFG[req.body.sid] = _this.Servers[req.body.sid].getServerCfg();
+            _this.saveServerConfigs();
+            res.send('okay');
+        });
+        app.post('/getRconSpam', function (req, res) {
+            if (!authC.auth(req, res)) {
+                res.send("error: auth");
+                return;
+            }
+            res.send(_this.serversCFG[req.body.sid].rconSpam);
+        });
+    };
+    srvManager.prototype.saveServerConfigs = function () {
+        var dataStr = JSON.stringify(this.serversCFG, null, 2);
+        fs.writeFileSync('./servers.json', dataStr);
     };
     return srvManager;
 }());

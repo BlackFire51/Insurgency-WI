@@ -58,10 +58,12 @@ function initSettings(){
 		$('.server-iniFile').hide()
 		if($('.server-settings-rcon').length==1){
 			$('.server-settings-rcon').show()
+			updateServerSettingsRconData()
 		}else{
 			$.get("./pages/serverRconSpam.html", ( data ) =>{
 				$('.content-settings-inner').append(data)
 				iniServerSettingsRcon();
+				updateServerSettingsRconData()
 			})
 			.fail((e) => {
 				console.log( "error" );
@@ -69,6 +71,7 @@ function initSettings(){
 			});
 
 		}
+
 	})
 	updateSettingsDisplay()
 	

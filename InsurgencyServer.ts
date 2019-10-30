@@ -43,17 +43,34 @@ export default class InsurgencyServer{
 		this.lastRestartTime=new Date(0);
 		this.restartFrequncy=6
 		this.serverId=id
-		if(srvCfg.rconSpam!=undefined && srvCfg.rconSpam.msgs!= undefined && srvCfg.rconSpam.msgs.length>0){
-			this.fileReader = new gameFileReader(this.cfgData.dir)
-			this.rconSpam= new RconSpam('127.0.0.1',srvCfg.port+6,srvCfg.rcon)
-			this.rconSpam.setArray(srvCfg.rconSpam.msgs)
-			this.rconSpam.setDelay(srvCfg.rconSpam.delay)
-			this.rconSpam.start()
-		}
+		this.fileReader = new gameFileReader(this.cfgData.dir)
+		this.startRconSpam()
 
 	}
 	updateCfg(srvCfg:serverCfgData){
 		this.cfgData=srvCfg
+	}
+	getServerCfg(){
+		return this.cfgData
+	}
+	startRconSpam(overrideMsgs:string[]=undefined,overrideDelay:number=undefined){
+		console.log("startRconSpam",overrideMsgs,overrideDelay)
+		if(overrideMsgs!=undefined){
+			if(this.cfgData.rconSpam==undefined) this.cfgData.rconSpam= new rconSpamCfgData();
+			this.cfgData.rconSpam.msgs=overrideMsgs
+		}
+		if(overrideDelay!=undefined){
+			if(this.cfgData.rconSpam==undefined) this.cfgData.rconSpam= new rconSpamCfgData();
+			this.cfgData.rconSpam.delay=overrideDelay
+		}
+		if(this.cfgData.rconSpam!=undefined && this.cfgData.rconSpam.msgs!= undefined && this.cfgData.rconSpam.msgs.length>0){
+			console.log("create new Spamer")
+			this.rconSpam= new RconSpam('127.0.0.1',this.cfgData.port+6,this.cfgData.rcon)
+			this.rconSpam.setArray(this.cfgData.rconSpam.msgs)
+			this.rconSpam.setDelay(this.cfgData.rconSpam.delay)
+			this.rconSpam.start()
+		}
+
 	}
 
 	getArgs() {
@@ -295,4 +312,9 @@ class serverCfgData{
 	public password:string|undefined|null
 	public cheats:boolean
 	public GameStats:boolean
+	public rconSpam:rconSpamCfgData
+}
+class rconSpamCfgData{
+	public msgs:string[]
+	public delay:number
 }

@@ -177,9 +177,7 @@ export default class srvManager {
 			}
 			this.Servers[req.body.sid].updateCfg(this.serversCFG[req.body.sid])
 			//serversCFG
-			let dataStr = JSON.stringify(this.serversCFG, null, 2);
-			fs.writeFileSync('./servers.json', dataStr);
-
+			this.saveServerConfigs();
 			res.send("okay")
 		});
 
@@ -208,8 +206,20 @@ export default class srvManager {
 			if(this.Servers[req.body.sid].rconSpam!=undefined ){
 				this.Servers[req.body.sid].rconSpam.setArray(req.body.data.msgs.split('\n'))
 				this.Servers[req.body.sid].rconSpam.setDelay(req.body.data.delay)
+			}else{
+				this.Servers[req.body.sid].startRconSpam(req.body.data.msgs.split('\n'),+req.body.data.delay)
 			}
+			this.serversCFG[req.body.sid]=this.Servers[req.body.sid].getServerCfg()
+			this.saveServerConfigs();
 			res.send('okay');
 		});
+		app.post('/getRconSpam', (req, res) => {
+			if (!auth.auth(req, res)) { res.send("error: auth"); return; }
+			res.send(this.serversCFG[req.body.sid].rconSpam);
+		});
+	}
+	saveServerConfigs(){
+		let dataStr = JSON.stringify(this.serversCFG, null, 2);
+		fs.writeFileSync('./servers.json', dataStr);
 	}
 }
