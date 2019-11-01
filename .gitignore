@@ -1,7 +1,7 @@
 node_modules
 cfg.json
 servers.json
-public/img/
+public/img/wuff*
 todo
 test.log
 index.js
