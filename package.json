@@ -7,7 +7,7 @@
     "test": "rollup --config rollup.config.js && node ./index.js"
   },
   "author": "BlackFire51",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@types/cookie-parser": "^1.4.2",
     "body-parser": "^1.19.0",
