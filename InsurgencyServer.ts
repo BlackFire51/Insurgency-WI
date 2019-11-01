@@ -44,8 +44,6 @@ export default class InsurgencyServer{
 		this.restartFrequncy=6
 		this.serverId=id
 		this.fileReader = new gameFileReader(this.cfgData.dir)
-		this.startRconSpam()
-
 	}
 	updateCfg(srvCfg:serverCfgData){
 		this.cfgData=srvCfg
@@ -63,7 +61,7 @@ export default class InsurgencyServer{
 			if(this.cfgData.rconSpam==undefined) this.cfgData.rconSpam= new rconSpamCfgData();
 			this.cfgData.rconSpam.delay=overrideDelay
 		}
-		if(this.cfgData.rconSpam!=undefined && this.cfgData.rconSpam.msgs!= undefined && this.cfgData.rconSpam.msgs.length>0){
+		if(this.rconSpam==undefined && this.cfgData.rconSpam!=undefined && this.cfgData.rconSpam.msgs!= undefined && this.cfgData.rconSpam.msgs.length>0){
 			console.log("create new Spamer")
 			this.rconSpam= new RconSpam('127.0.0.1',this.cfgData.port+6,this.cfgData.rcon)
 			this.rconSpam.setArray(this.cfgData.rconSpam.msgs)
@@ -71,6 +69,13 @@ export default class InsurgencyServer{
 			this.rconSpam.start()
 		}
 
+	}
+	stopRconSpam(){
+		console.log("stopRconSpam")
+		if(this.rconSpam!=undefined){
+			this.rconSpam.stop()
+			this.rconSpam=undefined
+		}
 	}
 
 	getArgs() {
@@ -132,6 +137,11 @@ export default class InsurgencyServer{
 		});
 		this.log.addProcess(this.process);
 		this.lastRestartTime=new Date();
+		setTimeout(()=>{
+			this.startRconSpam()
+		},20000)
+		
+
 	}
 	/**
 	 * Stops the server if its running

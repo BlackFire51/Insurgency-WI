@@ -203,8 +203,14 @@ export default class srvManager {
 		app.post('/updateRconSpam', (req, res) => {
 			if (!auth.auth(req, res)) { res.send("error: auth"); return; }
 			if(req.body.sid==undefined || this.Servers[req.body.sid]==undefined) return res.send("err server Not Found");
+			console.log("updateRconSpam",req.body)
+			if(req.body.data.rep==0){
+				console.log("stopSpamQuery")
+				this.Servers[req.body.sid].stopRconSpam()
+				return;
+			}
 			if(this.Servers[req.body.sid].rconSpam!=undefined ){
-				this.Servers[req.body.sid].rconSpam.setArray(req.body.data.msgs.split('\n'))
+				if(req.body.data.msgs!=undefined) this.Servers[req.body.sid].rconSpam.setArray(req.body.data.msgs.split('\n'))
 				this.Servers[req.body.sid].rconSpam.setDelay(req.body.data.delay)
 			}else{
 				this.Servers[req.body.sid].startRconSpam(req.body.data.msgs.split('\n'),+req.body.data.delay)

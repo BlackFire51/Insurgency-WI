@@ -29,8 +29,22 @@ function iniServerSettingsRcon(){
 				return;
 			} 
 		})
-
 	})
+	$('#settings-rcon-stopBtn').click(()=>{
+		$.post("/updateRconSpam",{
+			sid:activeServerId,
+			data:{
+				rep:0,
+			}
+		}, function( data ) {
+			console.log("asw jQuery: "+data)
+			if( typeof data=='string' && data.startsWith("error: auth")){
+				window.location ="/";
+				return;
+			} 
+		})
+	})
+
 }
 
 function updateServerSettingsRconData(){

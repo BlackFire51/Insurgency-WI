@@ -334,7 +334,7 @@ var rconSpammer = /** @class */ (function () {
         this.connection = null;
     }
     rconSpammer.prototype.setArray = function (strArr) {
-        this.msgArr = strArr;
+        this.msgArr = strArr.filter(function (l) { return l.length > 3; });
     };
     rconSpammer.prototype.setDelay = function (delay) {
         if (delay < 10)
@@ -359,23 +359,33 @@ var rconSpammer = /** @class */ (function () {
             // console.log("Got response: " + str);
             //conn.disconnect();
         }).on('end', function () {
-            var _this = this;
             console.log("Socket closed!");
             //  process.exit();
+            clearInterval(_this.intervalObj);
             setTimeout(function () {
                 console.log("Reconnect Rcon A!");
                 _this.connection.connect();
             }, 120000);
         }).on('error', function (e) {
-            var _this = this;
             console.log("err ", e);
             //  process.exit();
+            clearInterval(_this.intervalObj);
             setTimeout(function () {
                 console.log("Reconnect Rcon B!");
                 _this.connection.connect();
             }, 300000);
         });
         this.connection.connect();
+    };
+    rconSpammer.prototype.stop = function () {
+        console.log("Rcon SPAMer STOP A");
+        if (this.connection == null)
+            return;
+        console.log("Rcon SPAMer STOP B");
+        clearInterval(this.intervalObj);
+        this.connection.disconnect();
+        this.connection = null;
+        this.intervalObj = null;
     };
     rconSpammer.prototype.spamAdvert = function () {
         //	conn.send("say ----------------");
@@ -405,7 +415,6 @@ var InsurgencyServer = /** @class */ (function () {
         this.restartFrequncy = 6;
         this.serverId = id;
         this.fileReader = new reader(this.cfgData.dir);
-        this.startRconSpam();
     }
     InsurgencyServer.prototype.updateCfg = function (srvCfg) {
         this.cfgData = srvCfg;
@@ -427,12 +436,19 @@ var InsurgencyServer = /** @class */ (function () {
                 this.cfgData.rconSpam = new rconSpamCfgData();
             this.cfgData.rconSpam.delay = overrideDelay;
         }
-        if (this.cfgData.rconSpam != undefined && this.cfgData.rconSpam.msgs != undefined && this.cfgData.rconSpam.msgs.length > 0) {
+        if (this.rconSpam == undefined && this.cfgData.rconSpam != undefined && this.cfgData.rconSpam.msgs != undefined && this.cfgData.rconSpam.msgs.length > 0) {
             console.log("create new Spamer");
             this.rconSpam = new rconSpammer('127.0.0.1', this.cfgData.port + 6, this.cfgData.rcon);
             this.rconSpam.setArray(this.cfgData.rconSpam.msgs);
             this.rconSpam.setDelay(this.cfgData.rconSpam.delay);
             this.rconSpam.start();
+        }
+    };
+    InsurgencyServer.prototype.stopRconSpam = function () {
+        console.log("stopRconSpam");
+        if (this.rconSpam != undefined) {
+            this.rconSpam.stop();
+            this.rconSpam = undefined;
         }
     };
     InsurgencyServer.prototype.getArgs = function () {
@@ -493,6 +509,9 @@ var InsurgencyServer = /** @class */ (function () {
         });
         this.log.addProcess(this.process);
         this.lastRestartTime = new Date();
+        setTimeout(function () {
+            _this.startRconSpam();
+        }, 20000);
     };
     /**
      * Stops the server if its running
@@ -900,8 +919,15 @@ var srvManager = /** @class */ (function () {
             }
             if (req.body.sid == undefined || _this.Servers[req.body.sid] == undefined)
                 return res.send("err server Not Found");
+            console.log("updateRconSpam", req.body);
+            if (req.body.data.rep == 0) {
+                console.log("stopSpamQuery");
+                _this.Servers[req.body.sid].stopRconSpam();
+                return;
+            }
             if (_this.Servers[req.body.sid].rconSpam != undefined) {
-                _this.Servers[req.body.sid].rconSpam.setArray(req.body.data.msgs.split('\n'));
+                if (req.body.data.msgs != undefined)
+                    _this.Servers[req.body.sid].rconSpam.setArray(req.body.data.msgs.split('\n'));
                 _this.Servers[req.body.sid].rconSpam.setDelay(req.body.data.delay);
             }
             else {

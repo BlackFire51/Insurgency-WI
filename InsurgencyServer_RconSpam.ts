@@ -20,7 +20,7 @@ export default class rconSpammer{
 		this.connection=null
 	}
 	setArray(strArr:string[]){
-		this.msgArr=strArr
+		this.msgArr=strArr.filter(l=>l.length>3)
 	}
 	setDelay(delay:number){
 		if(delay<10)delay=10
@@ -39,21 +39,23 @@ export default class rconSpammer{
 				this.spamAdvert()
 			}, this.intervalTime);
 		
-		}).on('response', function(str) {
+		}).on('response', (str) => {
 			// console.log("Got response: " + Buffer.from(str).toString('base64'));
 			// console.log("Got response: " + str);
 			//conn.disconnect();
-		}).on('end', function() {
+		}).on('end', ()=> {
 			console.log("Socket closed!");
 			//  process.exit();
+			clearInterval(this.intervalObj);
 			setTimeout(()=>{
 				console.log("Reconnect Rcon A!");
 				this.connection.connect();
 			},120000)
 		
-		}).on('error', function(e) {
+		}).on('error', (e)=> {
 			console.log("err ",e);
 			//  process.exit();
+			clearInterval(this.intervalObj);
 			setTimeout(()=>{
 				console.log("Reconnect Rcon B!");
 				this.connection.connect();
@@ -61,6 +63,15 @@ export default class rconSpammer{
 		});
 		
 		this.connection.connect();
+	}
+	stop(){
+		console.log("Rcon SPAMer STOP A")
+		if(this.connection==null) return;
+		console.log("Rcon SPAMer STOP B")
+		clearInterval(this.intervalObj);
+		this.connection.disconnect()
+		this.connection=null
+		this.intervalObj=null
 	}
 
 	spamAdvert() {
