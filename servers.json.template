@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Servername",
+    "ip": "127.0.0.1",
+    "port": 27015,
+    "maxPlayers": "8",
+    "appId": 581330,
+    "dir": "/path/to/sandstorm/server/",
+    "exec": "./Insurgency/Binaries/Linux/InsurgencyServer-Linux-Shipping",
+    "rcon": "changeme",
+    "password": null,
+    "mapStr": "Sinjar?Scenario=Scenario_Hillside_Checkpoint_Security",
+    "game": "CheckpointHardcore",
+    "GameStats": true,
+    "cheats": false
+  }
+]

@@ -96,7 +96,7 @@ export default class InsurgencyServer{
 		mainStartParam+="?MaxPlayers="+this.cfgData.maxPlayers
 		args.push(mainStartParam);
 		args.push("-log","-MapCycle=MapCycle")
-		args.push("-hostname=\t"+ this.cfgData.name)
+		args.push("-hostname="+ this.cfgData.name)
 		if(this.cfgData.cheats){
 			args.push("-EnableCheats")
 		}
