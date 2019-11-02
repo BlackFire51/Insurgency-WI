@@ -21,7 +21,7 @@ sudo apt-get install -y nodejs
 ```
 cd /srv/
 mkdir sandstormWebinterface
-git clone <url> sandstormWebinterface
+git clone https://github.com/BlackFire51/Insurgency-WI.git sandstormWebinterface
 ```
 ### Install required packages
 ```
