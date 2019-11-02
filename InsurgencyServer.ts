@@ -231,7 +231,7 @@ export default class InsurgencyServer{
 				console.log("h# "+hours)
 			}        
 		}else{
-			console.log("Wrong internal State")
+			console.log("Wrong internal State ",this.processInternalStatus)
 		}
 	}
 	/**
@@ -241,23 +241,27 @@ export default class InsurgencyServer{
 		console.log("autoRestart()")
 		this.processInternalStatus=ServerStatusInternal.AutoRestart;
 		this.IState =0;
-		var fastTick= function(){
+		let fastTick=()=>{
+			console.log("fastTick() |",this.IState,"| ",typeof this.IState)
 			// wait for shutdown 
 			if(this.IState==0 &&( this.processStatus== ServerStatus.Running )){ 
 				console.log("fastTick(): Stop Server")
 				this.Stop()
+				this.IState=1
+			}else if(this.IState==0 &&( this.processStatus== ServerStatus.Crashed || this.processStatus== ServerStatus.Stoped )){
 				this.IState=1
 			}
 			if(this.IState==1 &&( this.processStatus== ServerStatus.Stoped || this.processStatus== ServerStatus.Crashed )){             
 				// start update
 				this.IState=2
 				console.log("fastTick(): Update Server")
-				// steamcmd.Update(this.cfgData.dir,this.cfgData.appId,this.log,(sucess)=>{
-				// 	console.log("fastTick(): Update sucess: "+sucess)
-				// 	this.Start();
-				// 	this.processInternalStatus=Enums.ServerStatusInternal.None;
-				// 	this.IState=3
-				// })            
+				let steamcmd = new SteamCmd();
+				steamcmd.Update(this.cfgData.dir,this.cfgData.appId,this.log,(sucess)=>{
+					console.log("fastTick(): Update sucess: "+sucess)
+					this.Start();
+					this.processInternalStatus=ServerStatusInternal.None;
+					this.IState=3
+				})            
 			}
 			if(this.IState<2){
 				setTimeout(fastTick,1000)
