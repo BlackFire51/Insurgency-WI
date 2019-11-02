@@ -5,7 +5,7 @@
   "main": "./index.js",
   "scripts": {
 	"test": "rollup --config rollup.config.js && node ./index.js",
-	"run": "rollup --config rollup.config.js && node ./index.js"
+	"server": "rollup --config rollup.config.js && node ./index.js"
   },
   "author": "BlackFire51",
   "license": "MIT",

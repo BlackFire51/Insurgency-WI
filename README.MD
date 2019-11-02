@@ -43,7 +43,7 @@ nano cfg.json
 
 ## Start the program
 ```
-npm run
+npm run server
 ```
 
 it is recommended to **run the program** and therefore the gameserver **not as root**.
