@@ -13,7 +13,7 @@
     "@types/cookie-parser": "^1.4.2",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.4",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-basic-auth": "^1.2.0",
     "gamedig": "^2.0.16",
     "rcon": "^1.0.3"
